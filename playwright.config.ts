@@ -5,15 +5,15 @@ export default defineConfig({
 
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
-  reporter: 'html',
-
+  retries: process.env.CI ? 1 : 0,
+  workers: process.env.CI ? 2 : 4,
+  reporter: [['html', { open: 'never' }], ['list']],
   use: {
     baseURL: 'https://personal.freevpnplanet.com',
-    trace: 'on-first-retry',
+    locale: 'en-US',
+     trace: 'retain-on-failure',
+    screenshot: 'only-on-failure',
     headless: !!process.env.CI,
-    locale: 'en-US'
   },
 
   /* Configure projects for major browsers */
@@ -21,17 +21,17 @@ export default defineConfig({
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
-    },
+    }
 
-    {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
-    },
+    // {
+    //   name: 'firefox',
+    //   use: { ...devices['Desktop Firefox'] },
+    // },
 
-    {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
-    },
+    // {
+    //   name: 'webkit',
+    //   use: { ...devices['Desktop Safari'] },
+    // },
 
     /* Test against mobile viewports. */
     // {
