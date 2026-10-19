@@ -149,6 +149,7 @@ playwright.config.ts
 - **ESLint + Prettier.** ESLint с правилами `typescript-eslint` и `eslint-plugin-playwright` (ловит
   забытый `await`, `test.only`, тесты без проверок), Prettier — единый стиль. Оба запускаются в CI
   до тестов, поэтому ошибка оформления или линтера видна за секунды.
+
 ---
 
 ## CI
