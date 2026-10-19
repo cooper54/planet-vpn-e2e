@@ -76,4 +76,4 @@ export class HomePage {
       await expect(list).toBeHidden({ timeout: 1_000 });
     }).toPass();
   }
-}   
+}

@@ -31,7 +31,11 @@ test.describe('Personal VPN purchase', () => {
           await test.step('Enter email and go to payment method', async () => {
             await homePage.fillEmail(email);
             await homePage.submit();
-            await paymentMethodPage.expectOpened({ offerId: plan.offerId, currency, location: location.code });
+            await paymentMethodPage.expectOpened({
+              offerId: plan.offerId,
+              currency,
+              location: location.code,
+            });
           });
 
           await test.step(`Choose ${method.name} and pay`, async () => {
