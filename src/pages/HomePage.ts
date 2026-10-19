@@ -8,6 +8,7 @@ export class HomePage {
   readonly submitButton: Locator;
   readonly locationSelect: Locator;
   readonly currencySelect: Locator;
+  readonly heading: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -16,6 +17,7 @@ export class HomePage {
     this.submitButton = page.locator('#qa-btn-submit-step1');
     this.locationSelect = page.locator('label[data-name="location"] .ppg__select-display');
     this.currencySelect = page.locator('label[data-name="currency_code"] .ppg__select-display');
+    this.heading = page.locator('#PPG h2');
   }
 
   async open() {
@@ -31,21 +33,30 @@ export class HomePage {
     return this;
   }
 
+  async expectPlanPrice(offerId: string, price: string) {
+    await expect(this.page.locator(`b[data-offer_id="${offerId}"]`)).toContainText(price);
+  }
+
   async selectLocation(code: string) {
-    await this.locationSelect.click();                                       
+    await this.locationSelect.click();
     await this.page.locator(`#qa-select-location-${code.toLowerCase()}`).click();
     await expect(this.form).toHaveAttribute('data-location', code);
+    await this.closeDropdown('location');
+
     return this;
-}
+  }
   async selectCurrency(currency: Currency) {
     await this.currencySelect.click();
     await this.page.locator(`#qa-select-currency-${currency.toLowerCase()}`).click();
     await expect(this.form).toHaveAttribute('data-currency_code', currency);
+    await this.closeDropdown('currency_code');
+
     return this;
-}
+  }
 
   async fillEmail(email: string) {
     await this.emailInput.fill(email);
+
     return this;
   }
 
@@ -53,7 +64,16 @@ export class HomePage {
     await this.submitButton.click();
   }
 
-  async expectPlanPrice(offerId: string, price: string) {
-    await expect(this.page.locator(`b[data-offer_id="${offerId}"]`)).toContainText(price);
-}
+  // Выпадающие списки не всегда закрываются сами и перекрывают тарифы.
+  // Первые 100 мс после открытия сайт игнорирует клики (debounce в script.js плагина),
+  // поэтому кликаем вне списка повторно, пока он не закроется
+  private async closeDropdown(name: 'location' | 'currency_code') {
+    const list = this.page.locator(`label[data-name="${name}"] ul`);
+    await expect(async () => {
+      if (await list.isVisible()) {
+        await this.heading.click();
+      }
+      await expect(list).toBeHidden({ timeout: 1_000 });
+    }).toPass();
+  }
 }   
