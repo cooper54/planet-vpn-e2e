@@ -38,9 +38,9 @@ test.describe('Payment method page (negative)', () => {
     const urlBefore = page.url();
     await paymentMethodPage.submit(); // жмём Pay, не поставив галочку
 
-    await expect(page).toHaveURL(urlBefore);                                   // никуда не ушли
+    await expect(page).toHaveURL(urlBefore); // никуда не ушли
     await expect(paymentMethodPage.termsCheckbox).not.toBeChecked();
-    await expect(page.locator('#qa-checkbox-terms:invalid')).toHaveCount(1);   // браузер пометил поле как незаполненное
+    await expect(page.locator('#qa-checkbox-terms:invalid')).toHaveCount(1); // браузер пометил поле как незаполненное
   });
 
   test('Invalid email format is blocked on step 1', async ({ page, homePage }) => {
