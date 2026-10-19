@@ -17,7 +17,7 @@ export const paymentMethods: PaymentMethod[] = [
         provider: 'Stripe',
         qaId: 'qa-radio-gateway-stripe',
         label: 'Credit Card',
-        currencies: ['usd', 'eur', 'rub'],
+        currencies: ['USD', 'EUR', 'RUB'],
         urlPattern: /checkout\.stripe\.com/,
     },
     
@@ -27,7 +27,7 @@ export const paymentMethods: PaymentMethod[] = [
         provider: 'Heleket',
         qaId: 'qa-radio-gateway-crypto',
         label: 'Cryptocurrency',
-        currencies: ['usd', 'eur', 'rub'],
+        currencies: ['USD', 'EUR', 'RUB'],
         urlPattern: /pay\.heleket\.com/,
     },
 
@@ -37,7 +37,7 @@ export const paymentMethods: PaymentMethod[] = [
         provider: 'NSPK',
         qaId: 'qa-radio-gateway-fast-payments',
         label: 'Система быстрых платежей',
-        currencies: ['rub'],
+        currencies: ['RUB'],
         urlPattern: /pay\.x-hub\.online|qr\.nspk\.ru/,
     },
 ];

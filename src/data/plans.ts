@@ -1,5 +1,5 @@
-export type Currency = 'usd' | 'eur' | 'rub';
-export const currencies: Currency[] = ['usd', 'eur', 'rub'];
+export type Currency = 'USD' | 'EUR' | 'RUB';
+export const currencies: Currency[] = ['USD', 'EUR', 'RUB'];
 
 export interface Plan {
     offerId: string;
@@ -11,12 +11,12 @@ export const plans: Plan[] = [
 {
     offerId: '1_month',
     title: '1 month',
-    prices: { usd: '6.90', eur: '6.90', rub: '499' },
+    prices: { USD: '6.90', EUR: '6.90', RUB: '499' },
 },
 
 {
     offerId: '1_year',
     title: '1 year',
-    prices: { usd: '39', eur: '39', rub: '2990' },
+    prices: { USD: '39', EUR: '39', RUB: '2990' },
 },
 ];
