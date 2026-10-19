@@ -64,13 +64,16 @@ export class HomePage {
     await this.submitButton.click();
   }
 
-  // Выпадающие списки не всегда закрываются сами и перекрывают тарифы
+  // Выпадающие списки не всегда закрываются сами и перекрывают тарифы.
+  // Первые 100 мс после открытия сайт игнорирует клики (debounce в script.js плагина),
+  // поэтому кликаем вне списка повторно, пока он не закроется
   private async closeDropdown(name: 'location' | 'currency_code') {
     const list = this.page.locator(`label[data-name="${name}"] ul`);
-    if (await list.isVisible()) {
-      await this.heading.click();
-    }
-
-    await expect(list).toBeHidden();
+    await expect(async () => {
+      if (await list.isVisible()) {
+        await this.heading.click();
+      }
+      await expect(list).toBeHidden({ timeout: 1_000 });
+    }).toPass();
   }
 }   
