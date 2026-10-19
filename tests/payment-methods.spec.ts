@@ -1,6 +1,6 @@
 import { test, expect } from '../src/fixtures';
 import { currencies, plans } from '../src/data/plans';
-import { methodsNotFor } from '../src/data/paymentMethods';
+import { methodsNotFor, paymentMethods } from '../src/data/paymentMethods';
 import { uniqueEmail } from '../src/utils/testData';
 
 test.describe('Payment method page (negative)', () => {
@@ -41,5 +41,39 @@ test.describe('Payment method page (negative)', () => {
     await expect(page).toHaveURL(urlBefore);                                   // никуда не ушли
     await expect(paymentMethodPage.termsCheckbox).not.toBeChecked();
     await expect(page.locator('#qa-checkbox-terms:invalid')).toHaveCount(1);   // браузер пометил поле как незаполненное
+  });
+  
+  test('Invalid email format is blocked on step 1', async ({ page, homePage }) => {
+    await homePage.open();
+    await homePage.selectPlan(plan.offerId);
+    await homePage.fillEmail('not-an-email');
+    await homePage.submit();
+
+    // браузер не отправил форму: остались на главной, поле помечено как невалидное
+    await expect(page).not.toHaveURL(/\/payment\//);
+    await expect(page.locator('#qa-input-email:invalid')).toHaveCount(1);
+  });
+
+  test('Undeliverable email domain is rejected after choosing payment method', async ({
+    page,
+    homePage,
+    paymentMethodPage,
+  }) => {
+    const card = paymentMethods[0];
+
+    await homePage.open();
+    await homePage.selectPlan(plan.offerId);
+    await homePage.fillEmail(`autotest+${Date.now()}@example.com`); // формат верный, домен без почтового сервера
+    await homePage.submit();
+    await paymentMethodPage.expectOpened();
+
+    await paymentMethodPage.selectMethod(card);
+    await paymentMethodPage.acceptTerms();
+    await paymentMethodPage.submit();
+
+    // заказ отклонён: вместо платёжки — страница ошибки
+    await expect(page).toHaveURL(/\/payment\/failed\//);
+    await expect(page.getByRole('heading', { name: /Something went wrong/ })).toBeVisible();
+    await expect(page.getByText('Transaction was rejected')).toBeVisible();
   });
 });
