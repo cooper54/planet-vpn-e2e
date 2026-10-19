@@ -52,4 +52,8 @@ export class HomePage {
   async submit() {
     await this.submitButton.click();
   }
+
+  async expectPlanPrice(offerId: string, price: string) {
+    await expect(this.page.locator(`b[data-offer_id="${offerId}"]`)).toContainText(price);
+}
 }   

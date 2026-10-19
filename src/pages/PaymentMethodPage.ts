@@ -41,7 +41,7 @@ export class PaymentMethodPage {
   }
 
   async acceptTerms() {
-    await this.termsLabel.click({ position: { x: 5, y: 5 } }); // optional coords
+    await this.termsLabel.click();
     await expect(this.termsCheckbox).toBeChecked();
     return this;
   }

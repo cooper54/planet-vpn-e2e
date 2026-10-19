@@ -1,24 +1,50 @@
-import {test, expect} from '@playwright/test';
+import { test } from '../src/fixtures';
+import { currencies, plans } from '../src/data/plans';
+import { methodsFor } from '../src/data/paymentMethods';
+import { locations } from '../src/data/locations';
+import { uniqueEmail } from '../src/utils/testData';
 
-test('Monthly plan + credit card -> Stripe checkout', async ({ page }) => {
-    const email = `autotest+${Date.now()}@gmail.com.com`;
+test.describe('Personal VPN purchase', () => {
+  let caseIndex = 0;
 
-    await page.goto('/');
-    await page.locator('label:has(#qa-radio-offer-1-month)').click();
-    await expect(page.locator('#qa-radio-offer-1-month')).toBeChecked();
-    await expect(page.locator('b[data-offer_id="1_month"]')).toHaveText('6.90 $');  
-    await page.locator('#qa-input-email').fill(email);
-    await page.locator('#qa-btn-submit-step1').click();
+  for (const plan of plans) {
+    for (const currency of currencies) {
+      for (const method of methodsFor(currency)) {
+        const location = locations[caseIndex++ % locations.length];
 
-    // choose payment method page
-    await expect(page).toHaveURL(/\/payment\//);
-    await expect(page.locator('#qa-radio-gateway-stripe')).toBeChecked();
-    await page.locator('label:has(#qa-checkbox-terms)').click();
-    await expect(page.locator('#qa-checkbox-terms')).toBeChecked();
-    await page.locator('#qa-btn-submit-step2').click();
+        test(`${plan.title} | ${currency} | ${location.name} | ${method.name} -> ${method.provider}`, async ({
+          homePage,
+          paymentMethodPage,
+          gatewayPage,
+        }) => {
+          const email = uniqueEmail();
+          const price = plan.prices[currency];
 
-    // Stripe checkout page
-    await expect(page).toHaveURL(/^https:\/\/checkout\.stripe\.com\//, { timeout: 30_000 });
-    await expect(page.getByTestId('product-summary-total-amount')).toHaveText(/6[.,]90/);
-    await expect(page.getByText(email, { exact: true })).toBeVisible();
+          await test.step(`Select ${location.name}, ${currency}, ${plan.title}`, async () => {
+            await homePage.open();
+            await homePage.selectLocation(location.code);
+            await homePage.selectCurrency(currency);
+            await homePage.selectPlan(plan.offerId);
+            await homePage.expectPlanPrice(plan.offerId, price);
+          });
+
+          await test.step('Enter email and go to payment method', async () => {
+            await homePage.fillEmail(email);
+            await homePage.submit();
+            await paymentMethodPage.expectOpened({ offerId: plan.offerId, currency, location: location.code });
+          });
+
+          await test.step(`Choose ${method.name} and pay`, async () => {
+            await paymentMethodPage.selectMethod(method);
+            await paymentMethodPage.acceptTerms();
+            await paymentMethodPage.submit();
+          });
+
+          await test.step(`Check redirect to ${method.provider}`, async () => {
+            await gatewayPage.expectOpened(method, { price, email });
+          });
+        });
+      }
+    }
+  }
 });
