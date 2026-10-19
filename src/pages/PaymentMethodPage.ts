@@ -37,12 +37,14 @@ export class PaymentMethodPage {
   async selectMethod(method: PaymentMethod) {
     await this.page.locator('label', { has: this.methodRadio(method) }).click();
     await expect(this.methodRadio(method)).toBeChecked();
+
     return this;
   }
 
   async acceptTerms() {
     await this.termsLabel.click();
     await expect(this.termsCheckbox).toBeChecked();
+    
     return this;
   }
 
