@@ -20,7 +20,7 @@ export const paymentMethods: PaymentMethod[] = [
         currencies: ['USD', 'EUR', 'RUB'],
         urlPattern: /checkout\.stripe\.com/,
     },
-    
+
     {
         id: 'crypto',
         name: 'Cryptocurrency',

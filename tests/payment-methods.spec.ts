@@ -42,7 +42,7 @@ test.describe('Payment method page (negative)', () => {
     await expect(paymentMethodPage.termsCheckbox).not.toBeChecked();
     await expect(page.locator('#qa-checkbox-terms:invalid')).toHaveCount(1);   // браузер пометил поле как незаполненное
   });
-  
+
   test('Invalid email format is blocked on step 1', async ({ page, homePage }) => {
     await homePage.open();
     await homePage.selectPlan(plan.offerId);
