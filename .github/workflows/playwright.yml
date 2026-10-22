@@ -5,8 +5,22 @@ on:
   pull_request:
     branches: [main]
   workflow_dispatch:
+
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+      - run: npm ci
+      - run: npx eslint . && npx prettier --check .
+
   test:
+    # e2e создают реальные заказы на продакшене, поэтому только ручной запуск
+    if: github.event_name == 'workflow_dispatch'
+    needs: lint
     timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
@@ -14,14 +28,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
-      - name: Install dependencies
-        run: npm ci
-      - name: Lint
-        run: npx eslint . && npx prettier --check .
-      - name: Install Playwright Browsers
-        run: npx playwright install --with-deps chromium
-      - name: Run Playwright tests
-        run: npx playwright test
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npx playwright test
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
